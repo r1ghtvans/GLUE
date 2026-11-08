@@ -1,5 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
+#include <array>
 
 class PepeLAudioProcessor : public juce::AudioProcessor
 {
@@ -36,8 +37,7 @@ private:
     double sr = 44100.0;
     float env = 0.f, gainEnv = 1.f;
     float lastHpf = 30.f, lastExcFreq = 4500.f;
-    juce::dsp::ProcessorDuplicator<juce::dsp::IIR::Filter<float>, juce::dsp::IIR::Coefficients<float>> hpf;
-    std::array<juce::dsp::IIR::Filter<float>, 2> excHpf1, excHpf2;
+    std::array<juce::dsp::IIR::Filter<float>, 2> hpf, excHpf1, excHpf2;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PepeLAudioProcessor)
 };
