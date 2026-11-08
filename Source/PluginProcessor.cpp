@@ -36,9 +36,9 @@ void PepeLAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::ignoreUnused(samplesPerBlock);
     sr = sampleRate;
-    hpf.prepare({sampleRate,(uint32)samplesPerBlock,2});
-    hpf.coefficients = dsp::IIR::Coefficients<float>::makeHighPass(sampleRate,30.f);
-    for (int ch=0;ch<2;++ch) { excHpf1[ch].coefficients = dsp::IIR::Coefficients<float>::makeHighPass(sampleRate,4500.f); excHpf2[ch].coefficients = dsp::IIR::Coefficients<float>::makeHighPass(sampleRate,4500.f); }
+    auto hp = dsp::IIR::Coefficients<float>::makeHighPass(sampleRate,30.f);
+    auto exc = dsp::IIR::Coefficients<float>::makeHighPass(sampleRate,4500.f);
+    for (int ch=0;ch<2;++ch) { hpf[ch].coefficients = hp; excHpf1[ch].coefficients = exc; excHpf2[ch].coefficients = exc; }
     env=0; gainEnv=1.f; lastHpf=30.f; lastExcFreq=4500.f;
 }
 
@@ -91,7 +91,7 @@ void PepeLAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&)
     float mix = rawMix->load()*0.01f;
     float inten = rawInt->load()*0.01f;
 
-    if (std::abs(hpfFreq-lastHpf)>0.5f){ hpf.coefficients = dsp::IIR::Coefficients<float>::makeHighPass(sr,hpfFreq); lastHpf=hpfFreq; }
+    if (std::abs(hpfFreq-lastHpf)>0.5f){ auto c = dsp::IIR::Coefficients<float>::makeHighPass(sr,hpfFreq); hpf[0].coefficients=c; hpf[1].coefficients=c; lastHpf=hpfFreq; }
     if (std::abs(excFreq-lastExcFreq)>10.f){ auto c = dsp::IIR::Coefficients<float>::makeHighPass(sr,excFreq); for(int ch=0;ch<2;++ch){ excHpf1[ch].coefficients=c; excHpf2[ch].coefficients=c; } lastExcFreq=excFreq; }
 
     float ratioE = 1.f + (ratio-1.f)*inten;
@@ -113,13 +113,13 @@ void PepeLAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&)
         float dryR = numChannels>1 ? r[i] : dryL;
         peak = std::max(peak, std::max(std::abs(dryL), std::abs(dryR)));
 
-        float xL = hpf.processSample(0, dryL*inGain);
-        float xR = hpf.processSample(1, dryR*inGain);
+        float xL = hpf[0].processSample(dryL*inGain);
+        float xR = hpf[1].processSample(dryR*inGain);
 
         float det = std::max(std::abs(xL), std::abs(xR));
         env = det > env ? det + (env-det)*atkC : det + (env-det)*relC;
 
-        float over = Decibels::linToDb(env + 1e-6f) - thrDb;
+        float over = Decibels::gainToDecibels(env + 1e-6f) - thrDb;
         float grDb = 0.f;
         float half = knee*0.5f;
         if (over > half) grDb = over*(1.f - 1.f/ratioE);
