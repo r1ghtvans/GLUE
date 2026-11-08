@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include <functional>
 
 using namespace juce;
 
