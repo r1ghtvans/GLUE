@@ -34,10 +34,24 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
 private:
+    using SmLin = juce::SmoothedValue<float, juce::ValueSmoothingTypes::Linear>;
+    using SmMul = juce::SmoothedValue<float, juce::ValueSmoothingTypes::Multiplicative>;
+
+    void updateTargets (bool snap);
+
     double sr = 44100.0;
     float env = 0.f, gainEnv = 1.f;
-    float lastHpf = 30.f, lastExcFreq = 4500.f;
-    std::array<juce::dsp::IIR::Filter<float>, 2> hpf, excHpf1, excHpf2;
+
+    // указатели на параметры кэшируются один раз (в processBlock нет поиска по строкам)
+    std::atomic<float> *pInGain{}, *pHpf{}, *pThr{}, *pRatio{}, *pAtk{}, *pRel{}, *pKnee{}, *pMakeup{},
+                       *pDrive{}, *pChar{}, *pSatMix{}, *pExc{}, *pExcFreq{}, *pMix{}, *pInten{};
+
+    SmLin sInGain, sMakeup, sDrive, sChar, sSatMix, sExc, sMix, sThr, sRatio, sKnee;
+    SmMul sHpf, sExcFreq;
+
+    juce::dsp::StateVariableTPTFilter<float> hpf, excHpf1, excHpf2;
+    float dcX[2] {}, dcY[2] {};
+    float dcR = 0.999f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PepeLAudioProcessor)
 };

@@ -7,22 +7,22 @@ AudioProcessorValueTreeState::ParameterLayout PepeLAudioProcessor::createParamet
 {
     std::vector<std::unique_ptr<RangedAudioParameter>> params;
     auto add = [&](auto p){ params.push_back(std::move(p)); };
-    add(std::make_unique<AudioParameterFloat>("inputGain","Input Gain",NormalisableRange<float>(-24.f,24.f,0.1f),0.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
-    add(std::make_unique<AudioParameterFloat>("hpf","HP Filter",NormalisableRange<float>(20.f,300.f,1.f),30.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" Hz"; })));
-    add(std::make_unique<AudioParameterFloat>("threshold","Threshold",NormalisableRange<float>(-60.f,0.f,0.1f),-18.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
-    add(std::make_unique<AudioParameterFloat>("ratio","Ratio",NormalisableRange<float>(1.f,8.f,0.1f),2.5f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" :1"; })));
-    add(std::make_unique<AudioParameterFloat>("attack","Attack",NormalisableRange<float>(1.f,200.f,1.f),30.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" ms"; })));
-    add(std::make_unique<AudioParameterFloat>("release","Release",NormalisableRange<float>(20.f,1000.f,1.f),250.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" ms"; })));
-    add(std::make_unique<AudioParameterFloat>("knee","Knee",NormalisableRange<float>(0.f,24.f,0.1f),12.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
-    add(std::make_unique<AudioParameterFloat>("makeup","Makeup",NormalisableRange<float>(-12.f,12.f,0.1f),0.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
-    add(std::make_unique<AudioParameterFloat>("drive","Drive",NormalisableRange<float>(0.f,24.f,0.1f),8.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
-    add(std::make_unique<AudioParameterFloat>("char","Character",NormalisableRange<float>(0.f,100.f,1.f),35.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
-    add(std::make_unique<AudioParameterFloat>("satMix","Sat Mix",NormalisableRange<float>(0.f,100.f,1.f),55.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
-    add(std::make_unique<AudioParameterFloat>("exciter","Exciter",NormalisableRange<float>(0.f,100.f,1.f),20.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
-    add(std::make_unique<AudioParameterFloat>("excFreq","Exc Freq",NormalisableRange<float>(1000.f,10000.f,10.f),4500.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" Hz"; })));
-    add(std::make_unique<AudioParameterFloat>("mix","Mix",NormalisableRange<float>(0.f,100.f,1.f),100.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
-    add(std::make_unique<AudioParameterFloat>("intensity","Intensity",NormalisableRange<float>(0.f,100.f,1.f),100.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
-    add(std::make_unique<AudioParameterChoice>("preset","Preset",StringArray{"CLEAN","GLUE","DIRTY","AIR"},1));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"inputGain",1},"Input Gain",NormalisableRange<float>(-24.f,24.f,0.1f),0.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"hpf",1},"HP Filter",NormalisableRange<float>(20.f,300.f,1.f),30.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" Hz"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"threshold",1},"Threshold",NormalisableRange<float>(-60.f,0.f,0.1f),-18.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"ratio",1},"Ratio",NormalisableRange<float>(1.f,8.f,0.1f),2.5f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" :1"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"attack",1},"Attack",NormalisableRange<float>(1.f,200.f,1.f),30.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" ms"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"release",1},"Release",NormalisableRange<float>(20.f,1000.f,1.f),250.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" ms"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"knee",1},"Knee",NormalisableRange<float>(0.f,24.f,0.1f),12.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"makeup",1},"Makeup",NormalisableRange<float>(-12.f,12.f,0.1f),0.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"drive",1},"Drive",NormalisableRange<float>(0.f,24.f,0.1f),8.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String(v,1)+" dB"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"char",1},"Character",NormalisableRange<float>(0.f,100.f,1.f),35.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"satMix",1},"Sat Mix",NormalisableRange<float>(0.f,100.f,1.f),55.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"exciter",1},"Exciter",NormalisableRange<float>(0.f,100.f,1.f),20.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"excFreq",1},"Exc Freq",NormalisableRange<float>(1000.f,10000.f,10.f),4500.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" Hz"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"mix",1},"Mix",NormalisableRange<float>(0.f,100.f,1.f),100.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
+    add(std::make_unique<AudioParameterFloat>(ParameterID{"intensity",1},"Intensity",NormalisableRange<float>(0.f,100.f,1.f),100.f,AudioParameterFloatAttributes().withStringFromValueFunction([](auto v,int){ return String((int)v)+" %"; })));
+    add(std::make_unique<AudioParameterChoice>(ParameterID{"preset",1},"Preset",StringArray{"CLEAN","GLUE","DIRTY","AIR"},1));
     return { params.begin(), params.end() };
 }
 
@@ -30,16 +30,47 @@ PepeLAudioProcessor::PepeLAudioProcessor()
     : AudioProcessor(BusesProperties().withInput("Input",AudioChannelSet::stereo(),true).withOutput("Output",AudioChannelSet::stereo(),true)),
       apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 {
+    auto P = [this](const char* id){ return apvts.getRawParameterValue(id); };
+    pInGain = P("inputGain"); pHpf = P("hpf");       pThr = P("threshold"); pRatio = P("ratio");
+    pAtk = P("attack");       pRel = P("release");   pKnee = P("knee");     pMakeup = P("makeup");
+    pDrive = P("drive");      pChar = P("char");     pSatMix = P("satMix"); pExc = P("exciter");
+    pExcFreq = P("excFreq");  pMix = P("mix");       pInten = P("intensity");
+}
+
+// Пересчитывает цели сглаживателей из параметров. Без аллокаций.
+void PepeLAudioProcessor::updateTargets(bool snap)
+{
+    const float inten = pInten->load() * 0.01f;
+    const float ratio = pRatio->load();
+
+    auto set = [snap](auto& sm, float v){ if (snap) sm.setCurrentAndTargetValue(v); else sm.setTargetValue(v); };
+    set(sInGain, Decibels::decibelsToGain(pInGain->load()));
+    set(sMakeup, Decibels::decibelsToGain(pMakeup->load()));
+    set(sThr,    pThr->load());
+    set(sRatio,  1.f + (ratio - 1.f) * inten);
+    set(sKnee,   pKnee->load());
+    set(sDrive,  Decibels::decibelsToGain(pDrive->load() * inten));
+    set(sChar,   pChar->load() * 0.01f);
+    set(sSatMix, pSatMix->load() * 0.01f * inten);
+    set(sExc,    pExc->load() * 0.01f * inten);
+    set(sMix,    pMix->load() * 0.01f);
+    set(sHpf,    pHpf->load());
+    set(sExcFreq, jlimit(200.f, (float) (sr * 0.45), pExcFreq->load()));
 }
 
 void PepeLAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    juce::ignoreUnused(samplesPerBlock);
     sr = sampleRate;
-    auto hp = dsp::IIR::Coefficients<float>::makeHighPass(sampleRate,30.f);
-    auto exc = dsp::IIR::Coefficients<float>::makeHighPass(sampleRate,4500.f);
-    for (int ch=0;ch<2;++ch) { hpf[ch].coefficients = hp; excHpf1[ch].coefficients = exc; excHpf2[ch].coefficients = exc; }
-    env=0; gainEnv=1.f; lastHpf=30.f; lastExcFreq=4500.f;
+    dsp::ProcessSpec spec { sampleRate, (uint32) jmax(1, samplesPerBlock), 2 };
+    for (auto* f : { &hpf, &excHpf1, &excHpf2 }) { f->prepare(spec); f->setType(dsp::StateVariableTPTFilterType::highpass); f->reset(); }
+
+    for (auto* s : { &sInGain, &sMakeup, &sDrive, &sChar, &sSatMix, &sExc, &sMix, &sThr, &sRatio, &sKnee }) s->reset(sampleRate, 0.03);
+    for (auto* s : { &sHpf, &sExcFreq }) s->reset(sampleRate, 0.03);
+    updateTargets(true);
+
+    env = 0.f; gainEnv = 1.f;
+    dcR = 1.f - (2.f * MathConstants<float>::pi * 10.f / (float) sampleRate);
+    dcX[0] = dcX[1] = dcY[0] = dcY[1] = 0.f;
 }
 
 void PepeLAudioProcessor::releaseResources(){}
@@ -55,98 +86,83 @@ bool PepeLAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) con
 void PepeLAudioProcessor::processBlock(AudioBuffer<float>& buffer, MidiBuffer&)
 {
     ScopedNoDenormals noDenormals;
-    int numChannels = getTotalNumInputChannels();
-    int n = buffer.getNumSamples();
-    if (n==0) return;
+    const int numChannels = jmin(2, getTotalNumInputChannels());
+    const int n = buffer.getNumSamples();
+    if (n == 0 || numChannels == 0) return;
 
-    auto* rawInGain = apvts.getRawParameterValue("inputGain");
-    auto* rawHpf    = apvts.getRawParameterValue("hpf");
-    auto* rawThr    = apvts.getRawParameterValue("threshold");
-    auto* rawRatio  = apvts.getRawParameterValue("ratio");
-    auto* rawAtk    = apvts.getRawParameterValue("attack");
-    auto* rawRel    = apvts.getRawParameterValue("release");
-    auto* rawKnee   = apvts.getRawParameterValue("knee");
-    auto* rawMakeup = apvts.getRawParameterValue("makeup");
-    auto* rawDrive  = apvts.getRawParameterValue("drive");
-    auto* rawChar   = apvts.getRawParameterValue("char");
-    auto* rawSatMix = apvts.getRawParameterValue("satMix");
-    auto* rawExc    = apvts.getRawParameterValue("exciter");
-    auto* rawExcF   = apvts.getRawParameterValue("excFreq");
-    auto* rawMix    = apvts.getRawParameterValue("mix");
-    auto* rawInt    = apvts.getRawParameterValue("intensity");
+    updateTargets(false);
 
-    float inGain = Decibels::decibelsToGain(rawInGain->load());
-    float hpfFreq = rawHpf->load();
-    float thrDb = rawThr->load();
-    float ratio = rawRatio->load();
-    float atkMs = rawAtk->load();
-    float relMs = rawRel->load();
-    float knee = rawKnee->load();
-    float makeup = Decibels::decibelsToGain(rawMakeup->load());
-    float driveDb = rawDrive->load();
-    float charC = rawChar->load()*0.01f;
-    float satMix = rawSatMix->load()*0.01f;
-    float excAmt = rawExc->load()*0.01f;
-    float excFreq = rawExcF->load();
-    float mix = rawMix->load()*0.01f;
-    float inten = rawInt->load()*0.01f;
+    const float atkC = std::exp(-1.f / jmax(1.f, 0.001f * pAtk->load() * (float) sr));
+    const float relC = std::exp(-1.f / jmax(1.f, 0.001f * pRel->load() * (float) sr));
+    const float gAtkC = std::exp(-1.f / (0.005f * (float) sr));
 
-    if (std::abs(hpfFreq-lastHpf)>0.5f){ auto c = dsp::IIR::Coefficients<float>::makeHighPass(sr,hpfFreq); hpf[0].coefficients=c; hpf[1].coefficients=c; lastHpf=hpfFreq; }
-    if (std::abs(excFreq-lastExcFreq)>10.f){ auto c = dsp::IIR::Coefficients<float>::makeHighPass(sr,excFreq); for(int ch=0;ch<2;++ch){ excHpf1[ch].coefficients=c; excHpf2[ch].coefficients=c; } lastExcFreq=excFreq; }
-
-    float ratioE = 1.f + (ratio-1.f)*inten;
-    float driveLin = Decibels::decibelsToGain(driveDb*inten);
-    float satMixE = satMix*inten;
-    float excE = excAmt*inten;
-
-    float atkC = std::exp(-1.f/(0.001f*atkMs*sr));
-    float relC = std::exp(-1.f/(0.001f*relMs*sr));
-    float gAtkC = std::exp(-1.f/(0.005*sr));
-    float gRelC = relC;
+    float* l = buffer.getWritePointer(0);
+    float* r = numChannels > 1 ? buffer.getWritePointer(1) : l;
+    const bool stereo = numChannels > 1;
 
     float peak = 0.f;
-    float* l = buffer.getWritePointer(0);
-    float* r = numChannels>1 ? buffer.getWritePointer(1) : l;
 
-    for (int i=0;i<n;++i){
-        float dryL = l[i];
-        float dryR = numChannels>1 ? r[i] : dryL;
-        peak = std::max(peak, std::max(std::abs(dryL), std::abs(dryR)));
+    // Сатуратор: асимметричный tanh (даёт чётные гармоники), ограничен по уровню, с авто-компенсацией drive
+    auto saturate = [this](float x, float drive, float ch, float mix, int c)
+    {
+        const float bias = ch * 0.6f;
+        float wet = std::tanh(x * drive + bias) - std::tanh(bias);
+        wet *= 1.f / std::sqrt(jmax(1.f, drive));
+        // DC-блокировка (около 10 Гц), т.к. асимметрия смещает постоянную составляющую
+        const float y = wet - dcX[c] + dcR * dcY[c];
+        dcX[c] = wet; dcY[c] = y;
+        return x * (1.f - mix) + y * mix;
+    };
 
-        float xL = hpf[0].processSample(dryL*inGain);
-        float xR = hpf[1].processSample(dryR*inGain);
+    for (int i = 0; i < n; ++i)
+    {
+        const float inG = sInGain.getNextValue(), mk = sMakeup.getNextValue();
+        const float thr = sThr.getNextValue(), rat = sRatio.getNextValue(), knee = sKnee.getNextValue();
+        const float drv = sDrive.getNextValue(), chr = sChar.getNextValue(), sMx = sSatMix.getNextValue();
+        const float exc = sExc.getNextValue(), mix = sMix.getNextValue();
+        const float hpFreq = sHpf.getNextValue(), exFreq = sExcFreq.getNextValue();
 
-        float det = std::max(std::abs(xL), std::abs(xR));
-        env = det > env ? det + (env-det)*atkC : det + (env-det)*relC;
+        if (sHpf.isSmoothing())     hpf.setCutoffFrequency(hpFreq);
+        else if (i == 0)            hpf.setCutoffFrequency(hpFreq);
+        if (sExcFreq.isSmoothing()) { excHpf1.setCutoffFrequency(exFreq); excHpf2.setCutoffFrequency(exFreq); }
+        else if (i == 0)            { excHpf1.setCutoffFrequency(exFreq); excHpf2.setCutoffFrequency(exFreq); }
 
-        float over = Decibels::gainToDecibels(env + 1e-6f) - thrDb;
+        const float dryL = l[i];
+        const float dryR = stereo ? r[i] : dryL;
+        peak = jmax(peak, jmax(std::abs(dryL), std::abs(dryR)));
+
+        const float xL = hpf.processSample(0, dryL * inG);
+        const float xR = stereo ? hpf.processSample(1, dryR * inG) : xL;
+
+        // детектор + компрессор
+        const float det = jmax(std::abs(xL), std::abs(xR));
+        env = det > env ? det + (env - det) * atkC : det + (env - det) * relC;
+
+        const float over = Decibels::gainToDecibels(env + 1e-6f) - thr;
+        const float half = knee * 0.5f;
         float grDb = 0.f;
-        float half = knee*0.5f;
-        if (over > half) grDb = over*(1.f - 1.f/ratioE);
-        else if (over > -half) { float t=(over+half)/(knee+1e-6f); grDb = (over+half)*t*0.5f*(1.f - 1.f/ratioE); }
+        if (over > half)        grDb = over * (1.f - 1.f / rat);
+        else if (over > -half)  { const float t = (over + half) / (knee + 1e-6f); grDb = (over + half) * t * 0.5f * (1.f - 1.f / rat); }
 
-        float gTarget = Decibels::decibelsToGain(-grDb);
-        gainEnv = gTarget < gainEnv ? gTarget + (gainEnv-gTarget)*gAtkC : gTarget + (gainEnv-gTarget)*gRelC;
-        float g = gainEnv*makeup;
+        const float gTarget = Decibels::decibelsToGain(-grDb);
+        gainEnv = gTarget < gainEnv ? gTarget + (gainEnv - gTarget) * gAtkC
+                                    : gTarget + (gainEnv - gTarget) * relC;
+        const float g = gainEnv * mk;
 
-        auto saturate = [&](float x){
-            float p = x*driveLin;
-            float odd = std::tanh(p);
-            float even = p*std::abs(p)*0.7f;
-            float wet = odd*(1.f-charC) + even*charC;
-            return x*(1.f-satMixE) + wet*satMixE;
-        };
+        float cL = saturate(xL * g, drv, chr, sMx, 0);
+        float cR = stereo ? saturate(xR * g, drv, chr, sMx, 1) : cL;
 
-        float cL = saturate(xL*g);
-        float cR = saturate(xR*g);
+        // эксайтер
+        float hL = excHpf1.processSample(0, cL); hL = std::tanh(2.f * hL); hL = excHpf2.processSample(0, hL);
+        cL += hL * exc * 0.8f;
+        if (stereo)
+        {
+            float hR = excHpf1.processSample(1, cR); hR = std::tanh(2.f * hR); hR = excHpf2.processSample(1, hR);
+            cR += hR * exc * 0.8f;
+        }
 
-        float hL = excHpf1[0].processSample(cL); hL = std::tanh(2.f*hL); hL = excHpf2[0].processSample(hL);
-        float hR = excHpf1[1].processSample(cR); hR = std::tanh(2.f*hR); hR = excHpf2[1].processSample(hR);
-        cL += hL*excE*0.8f;
-        cR += hR*excE*0.8f;
-
-        l[i] = dryL*(1.f-mix) + cL*mix;
-        if (numChannels>1) r[i] = dryR*(1.f-mix) + cR*mix;
+        l[i] = dryL * (1.f - mix) + cL * mix;
+        if (stereo) r[i] = dryR * (1.f - mix) + cR * mix;
     }
     inputLevel.store(peak);
 }

@@ -13,15 +13,43 @@ static const char* spriteStar[] = {
 static const char* spriteCloud[] = {
     "..XXXXXX....",".XXXXXXXXXX.","XXXXXXXXXXXX","XXXXXXXXXXXX",".XXXXXXXXXX.","..XXXXXX....",nullptr
 };
-static const char* spriteGirlClosed[] = {
-    "....XXXX....","..XXXXXXXX..",".XXXXXXXXXX.",".XFkkFFkkFX.",".XFFFFFFFFX.",".XFFkkkkFFX.",
-    ".XFFFFFFFFX.","..XFkkkkFX..","..XFFFFFFX..",".XFFXXXXFFX.",".XFXXXXXXFX.","..XFXXXXFX..",
-    "...XFFFFX...","....XXXX....",nullptr
+// Иероглифы 灰 (хай — «пепел») и 愛 (ай — «любовь»), 16x16 пикселей.
+// Битмапы растеризованы из пиксельного шрифта DotGothic16 (SIL OFL 1.1, см. Assets/OFL-DotGothic16.txt).
+static const char* spriteKanjiHai[] = {
+    "................",
+    "..XXXXXXXXXXXX..",
+    "..X.............",
+    "..X.....X.......",
+    "..X.....X.......",
+    "..X.X...X...X...",
+    "..X..X..X...X...",
+    "..X..X..X..X....",
+    "..X..X..X..X....",
+    "..X....X.X......",
+    ".X.....X.X......",
+    ".X....X...X.....",
+    ".X....X....X....",
+    "X....X......X...",
+    "X..XX........XX.",
+    "................", nullptr
 };
-static const char* spriteGirlOpen[] = {
-    "....XXXX....","..XXXXXXXX..",".XXXXXXXXXX.",".XFkkFFkkFX.",".XFFFFFFFFX.",".XFmmmmmmFX.",
-    ".XFFFFFFFFX.","..XFkkkkFX..","..XFFFFFFX..",".XFFXXXXFFX.",".XFXXXXXXFX.","..XFXXXXFX..",
-    "...XFFFFX...","....XXXX....",nullptr
+static const char* spriteKanjiAi[] = {
+    "..........XXXX..",
+    "..XXXXXXXX.X....",
+    "....X..X...X....",
+    ".....X..X.X.....",
+    ".XXXXXXXXXXXXXX.",
+    ".X.....X......X.",
+    ".X.X.X.XX.X.X.X.",
+    "...X.X....X..X..",
+    "..X...XXXX......",
+    ".....X..........",
+    "....XXXXXXXXX...",
+    "..XX.X....XX....",
+    "......XXXX......",
+    "....XXX..XX.....",
+    ".XXX.......XXXX.",
+    "................", nullptr
 };
 
 static void drawSprite(Graphics& g, const char** rows, int x, int y, int px, std::function<Colour(char)> col)
@@ -167,8 +195,7 @@ ParamRow::ParamRow(AudioProcessorValueTreeState& st, const String& pid,
     slider.setSliderStyle(Slider::LinearHorizontal);
     slider.setTextBoxStyle(Slider::NoTextBox, false, 0, 0);
     slider.setDoubleClickReturnValue(true, def);
-    slider.setTextValueSuffix(suffix);
-    slider.setLookAndFeel(nullptr); // будет через родителя
+    ignoreUnused(suffix); // единицы уже входят в текст параметра (APVTS)
     addAndMakeVisible(slider);
     attachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(st, pid, slider);
 
@@ -236,10 +263,13 @@ PepeLAudioProcessorEditor::PepeLAudioProcessorEditor(PepeLAudioProcessor& p)
 
     presetBox.setLookAndFeel(&laf);
     presetBox.addItemList({"CLEAN","GLUE","DIRTY","AIR"}, 1);
-    presetAtt = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>(proc.apvts, "preset", presetBox);
+    presetBox.setSelectedItemIndex(juce::roundToInt(proc.apvts.getRawParameterValue("preset")->load()), dontSendNotification);
+    // onChange вызывается только когда пользователь сам выбрал пункт: загрузка проекта/автоматизация
+    // не перезаписывает ручные настройки (см. синхронизацию в timerCallback)
     presetBox.onChange = [this]{
-        if (applyingPreset) return;
-        applyPreset(presetBox.getSelectedItemIndex());
+        const int idx = presetBox.getSelectedItemIndex();
+        if (auto* p = proc.apvts.getParameter("preset")) p->setValueNotifyingHost(p->convertTo0to1((float) idx));
+        applyPreset(idx);
     };
     outPanel.addAndMakeVisible(&presetBox);
 
@@ -277,7 +307,6 @@ PepeLAudioProcessorEditor::~PepeLAudioProcessorEditor()
 void PepeLAudioProcessorEditor::applyPreset(int idx)
 {
     if (idx<0 || idx>3) return;
-    applyingPreset = true;
     struct P { float thr,ratio,atk,rel,knee,drive,chara,satMix,exciter,excFreq,hpf,makeup; };
     static const P table[4] = {
         {-14.f, 1.8f, 40.f, 200.f, 18.f,  6.f, 20.f, 35.f, 15.f, 6000.f, 30.f,  2.f},
@@ -292,7 +321,6 @@ void PepeLAudioProcessorEditor::applyPreset(int idx)
     set("threshold", v.thr); set("ratio", v.ratio); set("attack", v.atk); set("release", v.rel);
     set("knee", v.knee); set("drive", v.drive); set("char", v.chara); set("satMix", v.satMix);
     set("exciter", v.exciter); set("excFreq", v.excFreq); set("hpf", v.hpf); set("makeup", v.makeup);
-    applyingPreset = false;
 }
 
 void PepeLAudioProcessorEditor::resized()
@@ -369,21 +397,30 @@ void PepeLAudioProcessorEditor::paint(Graphics& g)
     g.setColour(pal::inkSoft);
     g.drawText("glue compressor // saturator // exciter", 24, 66, 500, 30, Justification::centredLeft);
 
-    // чиби
+    // иероглифы 灰愛: подпрыгивают и вспыхивают, когда на входе есть сигнал
     float lvl = proc.inputLevel.load();
     bool sing = lvl > 0.01f;
-    int hop = sing ? ((tick%2)*2) : 0;
-    auto hair = [&](int idx)->Colour{ return idx==0 ? pal::pink : pal::lavender; };
+    int hop = sing ? ((tick%2)*4) : 0;
+    const char** kanji[2] = { spriteKanjiHai, spriteKanjiAi };
+    Colour kcol[2] = { pal::pink, pal::lavender };
     for (int i=0;i<2;++i){
-        int gx = 640 + i*80;
-        int gy = 30 - hop;
-        auto* spr = sing ? spriteGirlOpen : spriteGirlClosed;
-        drawSprite(g, spr, gx, gy, 4, [&](char ch)->Colour{
-            if (ch=='X') return hair(i);
-            if (ch=='F') return pal::peach;
-            if (ch=='k') return pal::ink;
-            if (ch=='m') return pal::pink;
-            return Colours::transparentBlack;
+        int gx = 640 + i*72;
+        int gy = 28 - hop;
+        // жёсткая тень
+        drawSprite(g, kanji[i], gx+4, gy+4, 4, [](char ch)->Colour{
+            if (ch=='X') return pal::ink.withAlpha(0.22f); return Colours::transparentBlack;
+        });
+        // хроматический сдвиг как у заголовка
+        int off = glitchOn ? 4 : 2;
+        drawSprite(g, kanji[i], gx+off, gy, 4, [](char ch)->Colour{
+            if (ch=='X') return pal::glitchCyan.withAlpha(0.8f); return Colours::transparentBlack;
+        });
+        drawSprite(g, kanji[i], gx-off, gy, 4, [](char ch)->Colour{
+            if (ch=='X') return pal::glitchPink.withAlpha(0.8f); return Colours::transparentBlack;
+        });
+        Colour main = (sing && (tick%4 < 2)) ? pal::lemon.interpolatedWith(kcol[i], 0.4f) : pal::ink;
+        drawSprite(g, kanji[i], gx, gy, 4, [main](char ch)->Colour{
+            if (ch=='X') return main; return Colours::transparentBlack;
         });
     }
 
@@ -401,10 +438,13 @@ void PepeLAudioProcessorEditor::paint(Graphics& g)
         g.drawRect(r, 1);
     }
 
-    // подпись
+    // подпись «ПЕПЕL» (кириллица П, Е + латинская L), Press Start 2P, с тенью
+    const String sig = String(CharPointer_UTF8("\xD0\x9F\xD0\x95\xD0\x9F\xD0\x95" "L"));
     g.setFont(Font(FontOptions().withTypeface(fPs)).withHeight(10));
+    g.setColour(pal::ink.withAlpha(0.25f));
+    g.drawText(sig, 701, 531, 90, 14, Justification::centredRight, false);
     g.setColour(pal::inkSoft);
-    g.drawText("PEPEL", 740, 530, 50, 14, Justification::centredRight);
+    g.drawText(sig, 700, 530, 90, 14, Justification::centredRight, false);
 }
 
 void PepeLAudioProcessorEditor::paintOverChildren(Graphics& g)
@@ -435,6 +475,11 @@ void PepeLAudioProcessorEditor::paintOverChildren(Graphics& g)
 void PepeLAudioProcessorEditor::timerCallback()
 {
     ++tick;
+    // синхронизация выпадающего списка с параметром (автоматизация / загрузка состояния)
+    {
+        const int cur = juce::roundToInt(proc.apvts.getRawParameterValue("preset")->load());
+        if (cur != presetBox.getSelectedItemIndex()) presetBox.setSelectedItemIndex(cur, dontSendNotification);
+    }
     // облака
     cloudX[0] += 0.4f; cloudX[1] += 0.25f; cloudX[2] += 0.55f;
     // глитч
