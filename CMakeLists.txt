@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(PEPEL VERSION 1.0.0 LANGUAGES CXX)
+project(PEPEL VERSION 1.0.0 LANGUAGES C CXX)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -34,13 +34,24 @@ FetchContent_Declare(JUCE
   GIT_SHALLOW TRUE)
 FetchContent_MakeAvailable(JUCE)
 
+# AU собирается только на macOS
+if(APPLE)
+  set(PEPEL_FORMATS VST3 AU Standalone)
+else()
+  set(PEPEL_FORMATS VST3 Standalone)
+endif()
+
 juce_add_plugin(PEPEL
   COMPANY_NAME "PEPEL"
   COMPANY_WEBSITE "https://example.com"
   COMPANY_EMAIL "pepel@example.com"
   PLUGIN_MANUFACTURER_CODE Pepl
   PLUGIN_CODE Pglu
-  FORMATS VST3 Standalone
+  AU_MAIN_TYPE kAudioUnitType_Effect
+  IS_SYNTH FALSE
+  NEEDS_MIDI_INPUT FALSE
+  NEEDS_MIDI_OUTPUT FALSE
+  FORMATS ${PEPEL_FORMATS}
   PRODUCT_NAME "PEPEL Glue"
   VST3_CATEGORIES Fx Dynamics
   BUNDLE_ID com.pepel.glue)
@@ -68,3 +79,17 @@ target_link_libraries(PEPEL PRIVATE
   juce::juce_dsp)
 
 juce_generate_juce_header(PEPEL)
+
+# ---- Необязательный тест DSP: cmake -B build -DPEPEL_BUILD_TESTS=ON ----
+option(PEPEL_BUILD_TESTS "Build offline DSP test" OFF)
+if(PEPEL_BUILD_TESTS)
+  juce_add_console_app(PEPELDspTest PRODUCT_NAME "PEPELDspTest")
+  target_sources(PEPELDspTest PRIVATE
+    Tests/DspTest.cpp Source/PluginProcessor.cpp Source/PluginEditor.cpp)
+  target_include_directories(PEPELDspTest PRIVATE Source)
+  target_compile_definitions(PEPELDspTest PRIVATE
+    JUCE_WEB_BROWSER=0 JUCE_USE_CURL=0 JUCE_STANDALONE_APPLICATION=1)
+  target_link_libraries(PEPELDspTest PRIVATE
+    FontsBinaryData juce::juce_audio_utils juce::juce_dsp)
+  juce_generate_juce_header(PEPELDspTest)
+endif()
