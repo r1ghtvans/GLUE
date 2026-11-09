@@ -13,6 +13,13 @@ cmake --build build --config Release --parallel
 ```
 Артефакты появятся в `build/PEPEL_artefacts/Release/`.
 
+## Тест DSP (необязательно)
+```bash
+cmake -B build -DPEPEL_BUILD_TESTS=ON
+cmake --build build --target PEPELDspTest
+./build/PEPELDspTest_artefacts/Release/PEPELDspTest
+```
+
 ## Режим скриншота (Standalone)
 ```bash
 ./PEPEL --screenshot=shot.png
@@ -34,9 +41,10 @@ cmake --build build --config Release --parallel
 4. Нажми **"Commit changes"**.
 5. Перейди во вкладку **Actions** — убедись, что Actions включены (GitHub спросит разрешение при первом запуске — нажми **"I understand my workflows, go ahead and enable them"**).
 6. Через несколько минут появится зелёный чек. Нажми на workflow-run → внизу раздел **Artifacts** → скачай архив `PEPEL-windows-latest` (или mac/linux).
-7. Распакуй. Внутри `VST3/PEPEL.vst3` — скопируй в `C:\Program Files\Common Files\VST3\` (Windows) или `~/Library/Audio/Plug-Ins/VST3/` (macOS).
+7. Распакуй. Внутри `VST3/PEPEL Glue.vst3` — скопируй в `C:\Program Files\Common Files\VST3\` (Windows) или `~/Library/Audio/Plug-Ins/VST3/` (macOS).
 8. В FL Studio зайди **Options → Manage plugins → Find plugins**.
 
 ## Лицензии шрифтов
 - VT323 — [OFL](Assets/OFL-VT323.txt)
 - Press Start 2P — [OFL](Assets/OFL-PressStart2P.txt)
+- DotGothic16 — [OFL](Assets/OFL-DotGothic16.txt) (только как источник пиксельных глифов 灰愛 в шапке; сам шрифт в плагин не вшит)
